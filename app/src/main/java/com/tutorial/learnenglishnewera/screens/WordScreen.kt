@@ -1,0 +1,181 @@
+package com.tutorial.learnenglishnewera.screens
+
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyItemScope
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddCircleOutline
+import androidx.compose.material.icons.outlined.AddCircleOutline
+import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Divider
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.tutorial.learnenglishnewera.MyViewModel
+import com.tutorial.learnenglishnewera.R
+import com.tutorial.learnenglishnewera.database.DbObject
+import com.tutorial.learnenglishnewera.reuseables.CustomizedText
+import com.tutorial.learnenglishnewera.reuseables.CustomizedTextField
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
+@Composable
+fun WordScreen(viewModel: MyViewModel){
+
+    val currentItem = viewModel.currentDbObject
+
+    var addContext by remember { mutableStateOf("") }
+    var addSentence by remember { mutableStateOf("") }
+
+    var enableNavigation by remember { viewModel.enableNavigation }
+
+    var word by remember { mutableStateOf("") }
+    var mean by remember { mutableStateOf("") }
+    var phonetic by remember { mutableStateOf("") }
+    var context = remember { mutableStateListOf<String>() }
+    var exampleSentences = remember { mutableStateListOf<String>() }
+    var notes by remember { mutableStateOf("") }
+    var isItLearned by remember { mutableStateOf(false) }
+
+    currentItem?.let {
+        word = it.word
+        mean = it.mean
+        phonetic = it.phonetic
+        it.context.forEach { contextItem -> context.add(contextItem) }
+        it.exampleSentences.forEach { sentence -> exampleSentences.add(sentence) }
+        notes = it.notes
+        isItLearned = it.isItLearned
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(start = 16.dp, end = 16.dp, top = 48.dp, bottom = 96.dp)
+            .verticalScroll(rememberScrollState(), true),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        CustomizedTextField(value = word, label = "Word") { word = it }
+
+        CustomizedTextField(value = mean, label = "Mean") { mean = it }
+
+        CustomizedTextField(value = phonetic, label = "Phonetic") { phonetic = it }
+
+        ContextAndSentence(label = "Add Context", addValue = addContext, onAddValue = {addContext = it}, list = context)
+
+        ContextAndSentence(label = "Add Sentence", addValue = addSentence, onAddValue = {addSentence = it}, list = exampleSentences)
+
+        CustomizedTextField(value = notes, label = "Notes") { notes = it }
+
+        Row (
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ){
+            CustomizedText(text = "Is it learned?", fontFamily = R.font.opensans_semicondensed_medium)
+            Checkbox(checked = isItLearned, onCheckedChange = { isItLearned = it })
+        }
+
+        Row (
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ){
+            CustomizedText(text = "Disable Bottom Navigation", fontFamily = R.font.opensans_semicondensed_medium)
+            Checkbox(checked = enableNavigation.not(), onCheckedChange = { enableNavigation = it.not() })
+        }
+
+        Button(
+            modifier = Modifier.fillMaxWidth(0.8f),
+            onClick = {
+                val dbObject = DbObject(
+                    objectID = System.currentTimeMillis(),
+                    word = word,
+                    mean = mean,
+                    phonetic = phonetic,
+                    notes = notes,
+                    exampleSentences = exampleSentences.toList(),
+                    context = context.toList(),
+                    isItLearned = isItLearned,
+                    pronunciationPath = null
+                )
+
+                CoroutineScope(Dispatchers.IO).launch { viewModel.dbProcess.addItem(dbObject) }
+            },
+            shape = RoundedCornerShape(20)
+        ) {
+            CustomizedText(text = "Append", fontFamily = R.font.opensans_semicondensed_semibold, color = Color(0xFFFFFFFF))
+        }
+    }
+}
+
+@Composable
+fun ContextAndSentence(label:String ,addValue:String, onAddValue:(String) -> Unit, list:SnapshotStateList<String>){
+    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center){
+        CustomizedTextField(
+            value = addValue,
+            label = label,
+            trailingIcon = Icons.Outlined.AddCircleOutline,
+            onTrailingIcon = {
+                if (addValue.isNotEmpty() && !list.contains(addValue)){
+                    list.add(0,addValue)
+                    onAddValue("")
+                }
+            }
+        ) {
+            onAddValue(it)
+        }
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(0.dp, 90.dp)
+                .padding(start = 4.dp, end = 4.dp),
+            verticalArrangement = Arrangement.spacedBy(3.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            items(list, { it: String -> it.hashCode() }) {
+                CustomizedText(
+                    text = it,
+                    fontFamily = R.font.opensans_semicondensed_lightitalic,
+                    fontSize = 16.sp
+                )
+                Divider()
+            }
+        }
+    }
+}
+
+@Composable
+fun LazyListScope.sentenceItem(){
+    item {
+
+    }
+}

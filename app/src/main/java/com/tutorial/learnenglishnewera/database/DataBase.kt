@@ -20,7 +20,7 @@ interface DataBase {
 
     suspend fun updateItem(oldObject: DbObject ,newObject: DbObject)
 
-    suspend fun removeItem(dbObject: DbObject):Boolean
+    suspend fun removeItem(dbObject: DbObject)
 
     fun controlFile():FileStatus
 }

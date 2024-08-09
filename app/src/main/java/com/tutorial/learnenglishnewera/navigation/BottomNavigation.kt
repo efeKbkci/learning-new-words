@@ -5,13 +5,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Save
-import androidx.compose.material.icons.filled.Storage
-import androidx.compose.material.icons.filled.Subscript
-import androidx.compose.material.icons.filled.Surfing
 import androidx.compose.material.icons.outlined.Assessment
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Save
-import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -28,12 +24,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.tutorial.learnenglishnewera.MyViewModel
 import com.tutorial.learnenglishnewera.navigation.AllDestinations.HOME
 import com.tutorial.learnenglishnewera.navigation.AllDestinations.SAVED
 import com.tutorial.learnenglishnewera.navigation.AllDestinations.TEST
+import com.tutorial.learnenglishnewera.navigation.AllDestinations.WORD
 import com.tutorial.learnenglishnewera.screens.HomeScreen
 import com.tutorial.learnenglishnewera.screens.SavedScreen
 import com.tutorial.learnenglishnewera.screens.TestScreen
+import com.tutorial.learnenglishnewera.screens.WordScreen
 
 sealed class BottomNavigationItem (
     val label:String,
@@ -47,11 +46,12 @@ sealed class BottomNavigationItem (
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun BottomNavigation(){
+fun BottomNavigation(viewModel: MyViewModel){
 
     val navController:NavHostController = rememberNavController()
     var selectedItemIndex by rememberSaveable { mutableIntStateOf(0) }
     val navObject = remember(navController){ NavigateInMyApp(navController) }
+    var enableNavigation by rememberSaveable { viewModel.enableNavigation }
 
     val itemList = listOf(
         BottomNavigationItem.Home(),
@@ -79,16 +79,18 @@ fun BottomNavigation(){
                                 contentDescription = item.label
                             )
                         },
-                        label = { Text(text = item.label) }
+                        label = { Text(text = item.label) },
+                        enabled = enableNavigation
                     )
                 }
             }
         }
     ) {
         NavHost(navController = navController, startDestination = HOME){
-            composable(HOME){ HomeScreen() }
-            composable(SAVED){ SavedScreen() }
-            composable(TEST){ TestScreen() }
+            composable(HOME){ HomeScreen(viewModel = viewModel){navObject.goToWord()} }
+            composable(SAVED){ SavedScreen(viewModel = viewModel) }
+            composable(TEST){ TestScreen(viewModel = viewModel) }
+            composable(WORD){ WordScreen(viewModel = viewModel) }
         }
     }
 }

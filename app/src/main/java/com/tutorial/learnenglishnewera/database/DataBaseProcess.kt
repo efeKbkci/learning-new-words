@@ -2,6 +2,9 @@ package com.tutorial.learnenglishnewera.database
 
 import android.os.Environment
 import android.util.Log
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import com.tutorial.learnenglishnewera.MyViewModel
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
@@ -14,21 +17,6 @@ sealed class FileStatus {
     data object Existing: FileStatus()
     data class Error(val e:Exception): FileStatus()
 }
-
-@Serializable
-data class DbObject(
-    val objectID:Long,
-    var word:String,
-    var exampleSentences:List<String>,
-    var mean:String,
-    var type:String,
-    var phonetic:String,
-    var pronunciationPath:String,
-    var context:String,
-    var notes:String,
-    var isItLearned:Boolean
-)
-
 
 class DataBaseProcess(private val viewModel: MyViewModel):DataBase{
 
@@ -53,13 +41,13 @@ class DataBaseProcess(private val viewModel: MyViewModel):DataBase{
 
     override suspend fun addItem(dbObject: DbObject) = dbQuery {
         viewModel.jsonDbList.add(0, dbObject)
-        val jsonObject = Json.encodeToString(viewModel.jsonDbList)
+        val jsonObject = Json.encodeToString(viewModel.jsonDbList.toList())
         file.writeText(jsonObject)
     }
 
     override suspend fun addItems(objectList: List<DbObject>) = dbQuery{
         viewModel.jsonDbList.addAll(objectList)
-        val jsonObject = Json.encodeToString(viewModel.jsonDbList)
+        val jsonObject = Json.encodeToString(viewModel.jsonDbList.toList())
         file.writeText(jsonObject)
     }
 
@@ -74,10 +62,14 @@ class DataBaseProcess(private val viewModel: MyViewModel):DataBase{
 
     override suspend fun updateItem(oldObject: DbObject, newObject: DbObject) = dbQuery {
         viewModel.jsonDbList.replaceAll { if (it == oldObject) newObject else it}
+        val jsonObject = Json.encodeToString(viewModel.jsonDbList.toList())
+        file.writeText(jsonObject)
     }
 
     override suspend fun removeItem(dbObject: DbObject) = dbQuery {
         viewModel.jsonDbList.remove(dbObject)
+        val jsonObject = Json.encodeToString(viewModel.jsonDbList.toList())
+        file.writeText(jsonObject)
     }
 
     override fun controlFile():FileStatus {
