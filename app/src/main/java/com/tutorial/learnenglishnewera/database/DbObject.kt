@@ -9,7 +9,7 @@ data class DbObject(
     var exampleSentences:List<String>,
     var mean:String,
     var phonetic:String,
-    var pronunciationPath:String?,
+    var pronunciationPath:String,
     var context:List<String>,
     var notes:String,
     var isItLearned:Boolean

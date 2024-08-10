@@ -42,6 +42,5 @@ fun HomeScreen(viewModel: MyViewModel, goToWord:()->Unit){
         }
         
         LastAddedWord(viewModel = viewModel)
-
     }
 }

@@ -1,37 +1,34 @@
 package com.tutorial.learnenglishnewera.screens
 
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AddCircleOutline
+import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.outlined.AddCircleOutline
+import androidx.compose.material.icons.outlined.PlayCircleOutline
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,22 +36,30 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tutorial.learnenglishnewera.MyViewModel
 import com.tutorial.learnenglishnewera.R
+import com.tutorial.learnenglishnewera.api.ApiResponse
 import com.tutorial.learnenglishnewera.database.DbObject
 import com.tutorial.learnenglishnewera.reuseables.CustomizedText
 import com.tutorial.learnenglishnewera.reuseables.CustomizedTextField
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+import java.io.File
 
 @Composable
-fun WordScreen(viewModel: MyViewModel){
+fun WordScreen(viewModel: MyViewModel, goToSaved:()->Unit){
 
     val currentItem = viewModel.currentDbObject
 
     var addContext by remember { mutableStateOf("") }
     var addSentence by remember { mutableStateOf("") }
+    var soundFilePath by remember { mutableStateOf("") }
 
     var enableNavigation by remember { viewModel.enableNavigation }
+
+    var fetchData by rememberSaveable { mutableStateOf(true) }
+    var playerIsActive by rememberSaveable { mutableStateOf(false) }
 
     var word by remember { mutableStateOf("") }
     var mean by remember { mutableStateOf("") }
@@ -83,11 +88,23 @@ fun WordScreen(viewModel: MyViewModel){
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        CustomizedTextField(value = word, label = "Word") { word = it }
+        CustomizedTextField(
+            value = word,
+            label = "Word",
+            trailingIcon = Icons.AutoMirrored.Outlined.Send,
+            onTrailingIcon = { fetchData = fetchData.not() },
+            // icona her tıklandığında fetchdata farklı bir değer alarak launched effect'i tetikleyecek
+        ) { word = it }
 
         CustomizedTextField(value = mean, label = "Mean") { mean = it }
 
-        CustomizedTextField(value = phonetic, label = "Phonetic") { phonetic = it }
+        CustomizedTextField(
+            value = phonetic,
+            label = "Phonetic",
+            trailingIcon = Icons.Outlined.PlayCircleOutline,
+            onTrailingIcon = { viewModel.audioPlayer.start() },
+            trailingIconEnabled = playerIsActive
+        ) { phonetic = it }
 
         ContextAndSentence(label = "Add Context", addValue = addContext, onAddValue = {addContext = it}, list = context)
 
@@ -125,7 +142,7 @@ fun WordScreen(viewModel: MyViewModel){
                     exampleSentences = exampleSentences.toList(),
                     context = context.toList(),
                     isItLearned = isItLearned,
-                    pronunciationPath = null
+                    pronunciationPath = soundFilePath
                 )
 
                 CoroutineScope(Dispatchers.IO).launch { viewModel.dbProcess.addItem(dbObject) }
@@ -133,6 +150,34 @@ fun WordScreen(viewModel: MyViewModel){
             shape = RoundedCornerShape(20)
         ) {
             CustomizedText(text = "Append", fontFamily = R.font.opensans_semicondensed_semibold, color = Color(0xFFFFFFFF))
+        }
+    }
+
+    LaunchedEffect(key1 = fetchData) {
+
+        if (word.isEmpty()) return@LaunchedEffect
+
+        if (viewModel.audioPlayer.isActive()) viewModel.audioPlayer.stop()
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val response = viewModel.getPhonetic.handleJson(word) // api çağrısı yapılır, json verisi alınır
+            val apiResponse: ApiResponse? = Json.decodeFromString<List<ApiResponse>>(response.body.string()).firstOrNull()
+            // api çağrısı başarılıysa ApiResponse data class'ı şeklinde decode edilir
+            if (apiResponse == null){
+                //TODO
+            } else {
+                val extractedPhonetic = viewModel.getPhonetic.extractPhonetic(apiResponse.phonetics)
+                // Phonetic data class'ından uygun phonetic bilgisi alınır, ses dosyasının url'i çıkarılır
+                withContext(Dispatchers.Main){ phonetic = extractedPhonetic }
+                // main dispatcher'a geçilir ve arayüz güncellenir
+                val soundFile = viewModel.getPhonetic.downloadSound()
+                // ses dosyası indirilir ve ses dosyasının konumu alınır.
+                if (soundFile.isNotEmpty()){
+                    viewModel.audioPlayer.createPlayer(File(soundFile)) // player oluşturulur
+                    playerIsActive = viewModel.audioPlayer.isActive()
+                    soundFilePath = soundFile
+                }
+            }
         }
     }
 }
@@ -170,12 +215,5 @@ fun ContextAndSentence(label:String ,addValue:String, onAddValue:(String) -> Uni
                 Divider()
             }
         }
-    }
-}
-
-@Composable
-fun LazyListScope.sentenceItem(){
-    item {
-
     }
 }

@@ -90,7 +90,7 @@ fun BottomNavigation(viewModel: MyViewModel){
             composable(HOME){ HomeScreen(viewModel = viewModel){navObject.goToWord()} }
             composable(SAVED){ SavedScreen(viewModel = viewModel) }
             composable(TEST){ TestScreen(viewModel = viewModel) }
-            composable(WORD){ WordScreen(viewModel = viewModel) }
+            composable(WORD){ WordScreen(viewModel = viewModel){navObject.goToSaved()} }
         }
     }
 }

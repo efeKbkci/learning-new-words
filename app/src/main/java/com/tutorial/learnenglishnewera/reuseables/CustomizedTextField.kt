@@ -26,8 +26,10 @@ fun CustomizedTextField(
     value:String,
     leadingIcon: ImageVector?=null,
     onLeadingIcon:()->Unit={},
+    leadingIconEnabled:Boolean = true,
     trailingIcon: ImageVector?=null,
     onTrailingIcon:()->Unit={},
+    trailingIconEnabled:Boolean = true,
     justNumbers:Boolean=false,
     isError:Boolean=false,
     enabled:Boolean=true,
@@ -50,10 +52,18 @@ fun CustomizedTextField(
             )
         },
         leadingIcon = leadingIcon?.let {
-            { Icon(imageVector = leadingIcon, contentDescription = "", modifier = Modifier.clickable { if (!isError) onLeadingIcon() }) }
+            { Icon(
+                imageVector = leadingIcon,
+                contentDescription = "",
+                modifier = Modifier.clickable { if (!isError || leadingIconEnabled) onLeadingIcon() })
+            }
         },
         trailingIcon = trailingIcon?.let{
-            { Icon(imageVector = trailingIcon, contentDescription = "", modifier = Modifier.clickable { if (!isError) onTrailingIcon() }) }
+            { Icon(
+                imageVector = trailingIcon,
+                contentDescription = "",
+                modifier = Modifier.clickable { if (!isError || trailingIconEnabled) onTrailingIcon() })
+            }
         },
         textStyle = TextStyle(
             fontSize = 16.sp,
