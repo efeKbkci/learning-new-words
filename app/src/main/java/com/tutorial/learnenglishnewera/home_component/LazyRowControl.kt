@@ -20,7 +20,7 @@ import com.tutorial.learnenglishnewera.database.DbObject
 fun LazyRowControl(
     currentIndex:Int,
     onCurrentIndex:(Int)->Unit,
-    list: SnapshotStateList<String>,
+    list: SnapshotStateList<DbObject>,
     autoScroll:Boolean,
     onAutoScroll:(Boolean) -> Unit
 ){

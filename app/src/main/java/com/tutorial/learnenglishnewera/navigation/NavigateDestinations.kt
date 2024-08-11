@@ -1,6 +1,7 @@
 package com.tutorial.learnenglishnewera.navigation
 
 import androidx.navigation.NavHostController
+import com.tutorial.learnenglishnewera.MyViewModel
 import com.tutorial.learnenglishnewera.navigation.AllDestinations.HOME
 import com.tutorial.learnenglishnewera.navigation.AllDestinations.SAVED
 import com.tutorial.learnenglishnewera.navigation.AllDestinations.TEST
@@ -13,7 +14,7 @@ object AllDestinations {
     const val WORD:String = "word"
 }
 
-class NavigateInMyApp(private val navHostController: NavHostController){
+class NavigateInMyApp(private val navHostController: NavHostController, private val viewModel: MyViewModel){
     fun goHome(){
         navHostController.navigate(HOME)
     }
@@ -28,5 +29,6 @@ class NavigateInMyApp(private val navHostController: NavHostController){
 
     fun goToWord(){
         navHostController.navigate(WORD)
+        viewModel.previousRoute = navHostController.previousBackStackEntry?.destination?.route!!
     }
 }

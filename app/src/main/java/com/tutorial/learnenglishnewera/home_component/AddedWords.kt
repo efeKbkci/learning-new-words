@@ -53,14 +53,7 @@ import kotlinx.coroutines.launch
 fun AddedWords(viewModel: MyViewModel){
 
     val lazyListState = rememberLazyListState()
-    //val jsonDbList = remember { viewModel.jsonDbList }
-    val jsonDbList = remember {
-        mutableStateListOf(
-            "1.kelime",
-            "2.kelime",
-            "3.kelime"
-        )
-    }
+    val jsonDbList = remember { viewModel.jsonDbList }
     var currentItemIndex by remember { mutableIntStateOf(0) }
     var autoScroll by remember{ mutableStateOf(true) }
 
@@ -75,18 +68,8 @@ fun AddedWords(viewModel: MyViewModel){
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-//        items(jsonDbList, { item:DbObject -> item.objectID }){
-//            Text(text = it.word)
-//        }
-
-            items(jsonDbList, { item: String -> item }) {
-                Card(
-                    modifier = Modifier
-                        .fillParentMaxWidth()
-                        .height(125.dp)
-                ) {
-                    Text(text = currentItemIndex.toString())
-                }
+            items(jsonDbList, { item:DbObject -> item.objectID }){
+                Text(text = it.word)
             }
         }
 

@@ -1,6 +1,7 @@
 package com.tutorial.learnenglishnewera.navigation
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.material.icons.filled.Home
@@ -50,7 +51,7 @@ fun BottomNavigation(viewModel: MyViewModel){
 
     val navController:NavHostController = rememberNavController()
     var selectedItemIndex by rememberSaveable { mutableIntStateOf(0) }
-    val navObject = remember(navController){ NavigateInMyApp(navController) }
+    val navObject = remember(navController){ NavigateInMyApp(navController, viewModel) }
     var enableNavigation by rememberSaveable { viewModel.enableNavigation }
 
     val itemList = listOf(
@@ -88,7 +89,7 @@ fun BottomNavigation(viewModel: MyViewModel){
     ) {
         NavHost(navController = navController, startDestination = HOME){
             composable(HOME){ HomeScreen(viewModel = viewModel){navObject.goToWord()} }
-            composable(SAVED){ SavedScreen(viewModel = viewModel) }
+            composable(SAVED){ SavedScreen(viewModel = viewModel){navObject.goToWord() } }
             composable(TEST){ TestScreen(viewModel = viewModel) }
             composable(WORD){ WordScreen(viewModel = viewModel){navObject.goToSaved()} }
         }

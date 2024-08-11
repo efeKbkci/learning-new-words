@@ -2,8 +2,6 @@ package com.tutorial.learnenglishnewera
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import com.tutorial.learnenglishnewera.api.GetPhonetic
 import com.tutorial.learnenglishnewera.audio.AudioPlayer
@@ -23,4 +21,6 @@ class MyViewModel:ViewModel() {
     var currentDbObject:DbObject? = null
 
     var enableNavigation = mutableStateOf(true)
+
+    var previousRoute = "home" // home için ayrı, saved için ayrı bir lambda tanımlanacak
 }

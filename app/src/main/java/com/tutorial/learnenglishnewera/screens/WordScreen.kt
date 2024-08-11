@@ -1,5 +1,6 @@
 package com.tutorial.learnenglishnewera.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,11 +16,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.AddCircleOutline
 import androidx.compose.material.icons.outlined.PlayCircleOutline
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,6 +35,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tutorial.learnenglishnewera.MyViewModel
@@ -69,14 +73,16 @@ fun WordScreen(viewModel: MyViewModel, goToSaved:()->Unit){
     var notes by remember { mutableStateOf("") }
     var isItLearned by remember { mutableStateOf(false) }
 
-    currentItem?.let {
-        word = it.word
-        mean = it.mean
-        phonetic = it.phonetic
-        it.context.forEach { contextItem -> context.add(contextItem) }
-        it.exampleSentences.forEach { sentence -> exampleSentences.add(sentence) }
-        notes = it.notes
-        isItLearned = it.isItLearned
+    LaunchedEffect(Unit) {
+        currentItem?.let {
+            word = it.word
+            mean = it.mean
+            phonetic = it.phonetic
+            it.context.forEach { contextItem -> context.add(contextItem) }
+            it.exampleSentences.forEach { sentence -> exampleSentences.add(sentence) }
+            notes = it.notes
+            isItLearned = it.isItLearned
+        }
     }
 
     Column(
@@ -145,7 +151,14 @@ fun WordScreen(viewModel: MyViewModel, goToSaved:()->Unit){
                     pronunciationPath = soundFilePath
                 )
 
-                CoroutineScope(Dispatchers.IO).launch { viewModel.dbProcess.addItem(dbObject) }
+                // eğer word screen'e home penceresinden ulaşmışsak veri ekleyeceğiz
+                // Saved screen'den ulaşmışsak veri güncelleyeceğiz
+                if (viewModel.previousRoute == "home") CoroutineScope(Dispatchers.IO).launch { viewModel.dbProcess.addItem(dbObject) }
+                else if (viewModel.previousRoute == "saved") {
+                    CoroutineScope(Dispatchers.IO).launch { viewModel.dbProcess.updateItem(currentItem!!, dbObject) }
+                }
+                enableNavigation = true
+                goToSaved()
             },
             shape = RoundedCornerShape(20)
         ) {
@@ -167,7 +180,7 @@ fun WordScreen(viewModel: MyViewModel, goToSaved:()->Unit){
                 //TODO
             } else {
                 val extractedPhonetic = viewModel.getPhonetic.extractPhonetic(apiResponse.phonetics)
-                // Phonetic data class'ından uygun phonetic bilgisi alınır, ses dosyasının url'i çıkarılır
+                // Phonetic data class'ından uygun phonetic bilgisi alınır, ses dosyasının url'si çıkarılır
                 withContext(Dispatchers.Main){ phonetic = extractedPhonetic }
                 // main dispatcher'a geçilir ve arayüz güncellenir
                 val soundFile = viewModel.getPhonetic.downloadSound()
@@ -207,11 +220,23 @@ fun ContextAndSentence(label:String ,addValue:String, onAddValue:(String) -> Uni
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             items(list, { it: String -> it.hashCode() }) {
-                CustomizedText(
-                    text = it,
-                    fontFamily = R.font.opensans_semicondensed_lightitalic,
-                    fontSize = 16.sp
-                )
+                Row(modifier = Modifier
+                    .fillParentMaxWidth()
+                    .padding(start = 5.dp, end = 7.dp)
+                ){
+                    CustomizedText(
+                        text = it,
+                        fontFamily = R.font.opensans_semicondensed_lightitalic,
+                        fontSize = 16.sp,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        textAlign = TextAlign.Center
+                    )
+                    Icon(imageVector = Icons.Filled.Delete, contentDescription = "delete sentence", modifier = Modifier.clickable {
+                        list.remove(it)
+                    })
+                }
                 Divider()
             }
         }

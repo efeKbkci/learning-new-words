@@ -3,6 +3,7 @@ package com.tutorial.learnenglishnewera.reuseables
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
@@ -10,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -33,6 +35,7 @@ fun CustomizedTextField(
     justNumbers:Boolean=false,
     isError:Boolean=false,
     enabled:Boolean=true,
+    shape:Shape?=null,
     onValueChange:(String)->Unit
 ) {
     OutlinedTextField(
@@ -72,6 +75,7 @@ fun CustomizedTextField(
         isError = isError,
         enabled = enabled,
         modifier = modifier.fillMaxWidth(),
+        shape = shape ?: RoundedCornerShape(5),
         keyboardOptions = KeyboardOptions(keyboardType = if (justNumbers) KeyboardType.Number else KeyboardType.Text)
     )
 }
