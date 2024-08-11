@@ -48,7 +48,7 @@ fun LastAddedWord(viewModel: MyViewModel){
                 Log.i("myapp","recompose")
                 CustomizedText(text = it.word, fontFamily = R.font.opensans_semicondensed_bold, fontSize = 20.sp)
                 CustomizedText(text = it.phonetic, fontFamily = R.font.opensans_semicondensed_light, fontSize = 12.sp)
-                CustomizedText(text = it.mean, fontFamily = R.font.opensans_semicondensed_medium, fontSize = 16.sp)
+                CustomizedText(text = it.mean.joinToString(" | "), fontFamily = R.font.opensans_semicondensed_medium, fontSize = 16.sp)
             }
         }
     }

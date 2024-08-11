@@ -67,6 +67,10 @@ class DataBaseProcess(private val viewModel: MyViewModel):DataBase{
     }
 
     override suspend fun removeItem(dbObject: DbObject) = dbQuery {
+        val soundFile = File(dbObject.pronunciationPath)
+        val imageFile = File(dbObject.imagePath)
+        if (soundFile.exists()) soundFile.delete()
+        if (imageFile.exists()) imageFile.delete()
         viewModel.jsonDbList.remove(dbObject)
         val jsonObject = Json.encodeToString(viewModel.jsonDbList.toList())
         file.writeText(jsonObject)

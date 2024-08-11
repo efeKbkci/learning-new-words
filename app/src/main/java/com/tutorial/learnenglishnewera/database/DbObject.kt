@@ -7,10 +7,10 @@ data class DbObject(
     val objectID:Long,
     var word:String,
     var exampleSentences:List<String>,
-    var mean:String,
+    var mean:List<String>,
     var phonetic:String,
     var pronunciationPath:String,
     var context:List<String>,
-    var notes:String,
+    var imagePath:String,
     var isItLearned:Boolean
 )
