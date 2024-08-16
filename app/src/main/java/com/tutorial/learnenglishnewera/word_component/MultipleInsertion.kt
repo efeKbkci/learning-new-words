@@ -26,8 +26,19 @@ import com.tutorial.learnenglishnewera.reuseables.CustomizedText
 import com.tutorial.learnenglishnewera.reuseables.CustomizedTextField
 
 @Composable
-fun MultipleInsertion(label:String, value:String, onValueChange:(String) -> Unit, list: SnapshotStateList<String>){
-    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center){
+fun MultipleInsertion(
+    modifier: Modifier=Modifier,
+    label:String,
+    value:String,
+    onValueChange:(String) -> Unit,
+    list: SnapshotStateList<String>
+){
+
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ){
         CustomizedTextField(
             value = value,
             label = label,

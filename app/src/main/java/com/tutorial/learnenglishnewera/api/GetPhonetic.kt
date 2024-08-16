@@ -59,6 +59,8 @@ class GetPhonetic {
     fun downloadSound():String{
         if (soundFileUrl.isEmpty()) return ""
 
+        Log.d("myapp",soundFileUrl)
+
         val fileName = soundFileUrl.split("/").last()
 
         val request = Request.Builder()
@@ -68,19 +70,29 @@ class GetPhonetic {
         val response = client.newCall(request).execute()
 
         return if (response.isSuccessful) {
-            response.body.let {
-                val inputStream = it.byteStream()
-                val outputStream = FileOutputStream(File(folderPath, fileName))
 
+            val inputStream = response.body.byteStream()
+            val outputStream = FileOutputStream(File(folderPath, fileName))
+
+            try {
                 inputStream.use { input ->
                     outputStream.use { output ->
                         input.copyTo(output)
+                        Log.i("myapp", "dosya başarıyla indirildi")
                     }
                 }
-                Log.i("myapp", "dosya başarıyla indirildi")
+            } catch (e: Exception) {
+                Log.e("myapp","ses dosyası indirilemedi", e)
+                e.printStackTrace()
             }
 
-            File(folderPath, fileName).absolutePath
+            val file = File(folderPath, fileName)
+            if (file.length() == 0L){
+                file.delete()
+                Log.i("myapp","dosya bozuk")
+                ""
+            }
+            else file.absolutePath
         } else ""
     }
 

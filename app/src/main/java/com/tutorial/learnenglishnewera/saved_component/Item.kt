@@ -50,12 +50,14 @@ fun Item(viewModel: MyViewModel, dbObject: DbObject,  goToWord:()->Unit){
             .fillMaxWidth()
             .height(128.dp)
         ){
-            Image(
-                bitmap = BitmapFactory.decodeFile(dbObject.imagePath).asImageBitmap(),
-                contentDescription = null,
-                contentScale = ContentScale.FillWidth,
-                alpha = 0.38f
-            )
+            if (dbObject.imagePath.isNotEmpty()){
+                Image(
+                    bitmap = BitmapFactory.decodeFile(dbObject.imagePath).asImageBitmap(),
+                    contentDescription = null,
+                    contentScale = ContentScale.FillWidth,
+                    alpha = 0.38f
+                )
+            }
 
             Column(
                 modifier = Modifier
@@ -83,9 +85,11 @@ fun Item(viewModel: MyViewModel, dbObject: DbObject,  goToWord:()->Unit){
                                 contentDescription = "sound",
                                 modifier = Modifier.clickable {
                                     viewModel.audioPlayer.apply {
-                                        stop()
-                                        createPlayer(File(dbObject.pronunciationPath))
-                                        start()
+                                        if (dbObject.pronunciationPath.isNotEmpty()) {
+                                            stop()
+                                            createPlayer(File(dbObject.pronunciationPath))
+                                            start()
+                                        }
                                     }
                                 }
                             )
