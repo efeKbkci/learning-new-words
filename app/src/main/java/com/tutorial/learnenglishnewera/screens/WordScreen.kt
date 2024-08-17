@@ -131,7 +131,7 @@ fun WordScreen(viewModel: MyViewModel, goToSaved:()->Unit){
             value = imageURL,
             label = "Image Path",
             trailingIcon = Icons.Outlined.Image,
-            onTrailingIcon = { loadImageFromURL(url = imageURL){ bitmap = it } }
+            onTrailingIcon = { loadImageFromURL(viewModel = viewModel, url = imageURL){ bitmap = it } }
             // fonksyion içerisinde çalışan coroutine scope sonlanınca state'i güncelleyecek ve otomatikmen resim sayfaya yüklenecek
         ) { imageURL = it }
 

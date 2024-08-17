@@ -2,6 +2,7 @@ package com.tutorial.learnenglishnewera.navigation
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.material.icons.filled.Home
@@ -13,14 +14,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -54,6 +59,8 @@ fun BottomNavigation(viewModel: MyViewModel){
     val navObject = remember(navController){ NavigateInMyApp(navController, viewModel) }
     var enableNavigation by rememberSaveable { viewModel.enableNavigation }
 
+    val snackbarHostState by viewModel.snackbarState.collectAsState()
+
     val itemList = listOf(
         BottomNavigationItem.Home(),
         BottomNavigationItem.Saved(),
@@ -61,6 +68,12 @@ fun BottomNavigation(viewModel: MyViewModel){
     )
 
     Scaffold(
+
+        snackbarHost = { SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.padding(bottom = 34.dp)
+        ) },
+
         bottomBar = {
             NavigationBar {
                 itemList.forEachIndexed { index, item ->

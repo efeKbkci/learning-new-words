@@ -29,17 +29,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             LearnEnglishNewEraTheme {
-
-                val primaryColor = MaterialTheme.colorScheme.primary
-                val secondaryColor = MaterialTheme.colorScheme.secondary
-                val backgroundColor = MaterialTheme.colorScheme.background
-
-                val primaryColorHex = String.format("#%08X", primaryColor.toArgb())
-                val secondaryColorHex = String.format("#%08X", secondaryColor.toArgb())
-                val backgroundColorHex = String.format("#%08X", backgroundColor.toArgb())
-
-                Log.i("myapp","$primaryColorHex , $secondaryColorHex, $backgroundColorHex")
-
                 BottomNavigation(viewModel = MyViewModel())
             }
         }
@@ -57,5 +46,9 @@ class MainActivity : ComponentActivity() {
             ),
             0
         )
+    }
+
+    private fun versionControl(){
+
     }
 }

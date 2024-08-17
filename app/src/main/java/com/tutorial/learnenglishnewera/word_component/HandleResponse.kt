@@ -33,7 +33,7 @@ fun HandleResponse(
                 val apiResponse: ApiResponse? = Json.decodeFromString<List<ApiResponse>>(response.body.string()).firstOrNull()
                 // api çağrısı başarılıysa ApiResponse data class'ı şeklinde decode edilir
                 if (apiResponse == null){
-                    //TODO
+                    viewModel.showSnackBar("Response is empty, your word has no equivalent")
                 } else {
                     val extractedPhonetic = viewModel.getPhonetic.extractPhonetic(apiResponse.phonetics)
                     // Phonetic data class'ından uygun phonetic bilgisi alınır, ses dosyasının url'si çıkarılır
@@ -48,7 +48,7 @@ fun HandleResponse(
                     }
                 }
             }
-            else Log.i("myapp", "API çağrısı başarısız -> ${response.code}")
+            else viewModel.showSnackBar("Request has failed -> ${response.code}")
         }
     }
 }

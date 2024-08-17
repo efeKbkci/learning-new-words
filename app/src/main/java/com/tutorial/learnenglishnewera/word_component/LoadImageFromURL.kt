@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import com.tutorial.learnenglishnewera.MyViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -14,7 +15,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 
-fun loadImageFromURL(url:String, onImageBitmap:(ImageBitmap?)->Unit){
+fun loadImageFromURL(viewModel: MyViewModel, url:String, onImageBitmap:(ImageBitmap?)->Unit){
     CoroutineScope(Dispatchers.IO).launch {
         try {
             val connection = URL(url).openConnection() as HttpURLConnection
@@ -23,6 +24,7 @@ fun loadImageFromURL(url:String, onImageBitmap:(ImageBitmap?)->Unit){
             }
         } catch (e:Exception){
             Log.e("myapp","resim indirilemedi",e)
+            viewModel.showSnackBar("Image couldn't download, use another image url")
             onImageBitmap(null)
         }
     }

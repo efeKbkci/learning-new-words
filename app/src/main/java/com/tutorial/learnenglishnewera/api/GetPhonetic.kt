@@ -2,6 +2,7 @@ package com.tutorial.learnenglishnewera.api
 
 import android.os.Environment
 import android.util.Log
+import com.tutorial.learnenglishnewera.MyViewModel
 import kotlinx.serialization.json.Json
 import okhttp3.Call
 import okhttp3.Callback
@@ -15,7 +16,7 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.net.URL
 
-class GetPhonetic {
+class GetPhonetic(private val viewModel: MyViewModel) {
 
     private val endPoint = "https://api.dictionaryapi.dev/api/v2/entries/en/"
 
@@ -57,9 +58,10 @@ class GetPhonetic {
     }
 
     fun downloadSound():String{
-        if (soundFileUrl.isEmpty()) return ""
-
-        Log.d("myapp",soundFileUrl)
+        if (soundFileUrl.isEmpty()) {
+            viewModel.showSnackBar("Response is not contain any audio files")
+            return ""
+        }
 
         val fileName = soundFileUrl.split("/").last()
 
@@ -82,14 +84,14 @@ class GetPhonetic {
                     }
                 }
             } catch (e: Exception) {
-                Log.e("myapp","ses dosyası indirilemedi", e)
+                viewModel.showSnackBar("Audio file couldn't save")
                 e.printStackTrace()
             }
 
             val file = File(folderPath, fileName)
             if (file.length() == 0L){
                 file.delete()
-                Log.i("myapp","dosya bozuk")
+                viewModel.showSnackBar("Audio file is corrupted, has been deleted")
                 ""
             }
             else file.absolutePath

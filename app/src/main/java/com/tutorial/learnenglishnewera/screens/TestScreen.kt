@@ -4,8 +4,10 @@ import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import com.tutorial.learnenglishnewera.MyViewModel
 import com.tutorial.learnenglishnewera.R
 import com.tutorial.learnenglishnewera.reuseables.CustomizedText
+import com.tutorial.learnenglishnewera.reuseables.ModernBackground
 import com.tutorial.learnenglishnewera.test_component.Buttons
 import com.tutorial.learnenglishnewera.test_component.Goal
 import com.tutorial.learnenglishnewera.test_component.ItemsImage
@@ -94,29 +97,37 @@ fun TestScreen(viewModel: MyViewModel){
 
     /** Son **/
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(start = 16.dp, end = 16.dp, top = 48.dp, bottom = 96.dp)
-            .verticalScroll(rememberScrollState(), true),
-        verticalArrangement = Arrangement.spacedBy(14.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        if (!startTest){
+    //TODO:TEST SCREEN'I HOME SCREEN'E BENZET
+
+    if (!startTest){
+        ModernBackground {
+
+            Spacer(modifier = Modifier.height(16.dp))
+            
             Button(
-                modifier = Modifier.fillMaxWidth(0.8f),
+                modifier = Modifier.fillMaxWidth(),
                 onClick = startFun,
                 shape = RoundedCornerShape(20),
                 enabled = btnEnabled
             ) {
                 CustomizedText(
                     text = "Start Test",
-                    fontFamily = R.font.opensans_semicondensed_bold,
-                    color = Color(0xFFffffff)
+                    fontFamily = R.font.plusjakarta_regular,
+                    fontSize = 16.sp,
+                    color = Color.White
                 )
             }
         }
-        else{
+    } else {
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 16.dp, end = 16.dp, top = 48.dp, bottom = 96.dp)
+                .verticalScroll(rememberScrollState(), true),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             CustomizedText(
                 text = item!!.word,
                 fontFamily = R.font.opensans_semicondensed_bold,
@@ -156,5 +167,4 @@ fun TestScreen(viewModel: MyViewModel){
             )
         }
     }
-
 }

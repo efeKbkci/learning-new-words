@@ -30,61 +30,32 @@ import com.tutorial.learnenglishnewera.MyViewModel
 import com.tutorial.learnenglishnewera.R
 import com.tutorial.learnenglishnewera.home_component.AddedWords
 import com.tutorial.learnenglishnewera.reuseables.CustomizedText
+import com.tutorial.learnenglishnewera.reuseables.ModernBackground
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(viewModel: MyViewModel, goToWord:()->Unit){
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .background(Color(0xff9ca4b6))
-        .padding(top = 34.dp),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    ModernBackground {
+        AddedWords(viewModel = viewModel)
 
-        CustomizedText(
-            text = "Learn English",
-            fontFamily = R.font.greyqo_regular,
-            fontSize = 50.sp
-        )
+        Spacer(modifier = Modifier.height(8.dp))
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        ElevatedCard(
-            modifier = Modifier
-                .fillMaxSize()
-                .weight(1f),
-            shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
-            onClick = {}
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = {
+                viewModel.currentDbObject = null // yeni bir obje ekleneceği zaman null, obje düzenleneceği zaman o obje atanır
+                goToWord()
+            },
+            shape = RoundedCornerShape(20)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                AddedWords(viewModel = viewModel)
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                Button(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {
-                        viewModel.currentDbObject = null // yeni bir obje ekleneceği zaman null, obje düzenleneceği zaman o obje atanır
-                        goToWord()
-                    },
-                    shape = RoundedCornerShape(20)
-                ) {
-                    CustomizedText(
-                        text = "New Word",
-                        fontFamily = R.font.plusjakarta_regular,
-                        fontSize = 16.sp,
-                        color = Color.White
-                    )
-                }
-            }
+            CustomizedText(
+                text = "New Word",
+                fontFamily = R.font.plusjakarta_regular,
+                fontSize = 16.sp,
+                color = Color.White
+            )
         }
     }
 }
+
