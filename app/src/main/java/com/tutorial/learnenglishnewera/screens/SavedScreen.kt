@@ -65,7 +65,7 @@ fun SavedScreen(viewModel: MyViewModel, goToWord:()->Unit){
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             items(filteredList, {it:DbObject -> it.objectID}){
-                Item(viewModel = viewModel, it){ goToWord() }
+                Item(viewModel = viewModel, dbObject = it){ goToWord() }
             }
         }
     }

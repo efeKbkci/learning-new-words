@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -45,6 +47,8 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
 import com.tutorial.learnenglishnewera.MyViewModel
 import com.tutorial.learnenglishnewera.database.DbObject
+import com.tutorial.learnenglishnewera.reuseables.shadow
+import com.tutorial.learnenglishnewera.saved_component.Item
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -63,28 +67,51 @@ fun AddedWords(viewModel: MyViewModel){
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 25.dp, start = 5.dp, end = 5.dp),
+                .padding(top = 25.dp),
             state = lazyListState,
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
             items(jsonDbList, { item:DbObject -> item.objectID }){
-                Text(text = it.word)
+
+                /**
+                 * eklenen elemanların lazyrow'un genişliğine sahip olmasını ve aynı zamanda kenarlarında boşluklar olmasını
+                 * istiyorsak bu durumda bir Row oluşturulur ve ana item Row'un içerisine yerleştirilir
+                 * Row'un genişliği parent'a eşitlenir ve böylece ana item lazyrow'a sığdırılmış olur.
+                 * Boşluklar içinse Row modifier'ına padding eklenir.
+                 * **/
+
+                Row(
+                    modifier = Modifier.fillParentMaxWidth().padding(horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.Center
+                ){
+                    Item(
+                        modifier = Modifier
+                            .shadow(
+                                color = Color(0x991E1E1E),
+                                borderRadius = 12.dp,
+                                spread = 1.dp,
+                                blurRadius = 4.dp
+                            ),
+                        viewModel = viewModel,
+                        dbObject = it
+                    ) {/*Tıklanıldığı zaman bir şey olmayacak*/ }
+                }
             }
         }
 
-        LazyRowControl(
-            currentIndex = currentItemIndex,
-            onCurrentIndex = { newValue -> currentItemIndex = newValue },
-            list = jsonDbList,
-            autoScroll = autoScroll,
-            onAutoScroll = { newValue -> autoScroll = newValue }
-        )
+        IconButton(onClick = { autoScroll = autoScroll.not()  }) {
+            Icon(
+                imageVector = Icons.Filled.Circle,
+                contentDescription = null,
+                tint = if (autoScroll) Color(0xff2d637c) else Color(0xff9ca4b6)
+            )
+        }
 
         LaunchedEffect(currentItemIndex, autoScroll) {
             if (jsonDbList.isNotEmpty() && autoScroll) {
                 lazyListState.animateScrollToItem(currentItemIndex)
-                delay(1500)
+                delay(2500)
                 currentItemIndex = (currentItemIndex + 1) % jsonDbList.size
             }
         }

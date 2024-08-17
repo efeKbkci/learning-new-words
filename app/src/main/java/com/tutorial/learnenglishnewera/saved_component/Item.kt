@@ -35,10 +35,10 @@ import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Item(viewModel: MyViewModel, dbObject: DbObject,  goToWord:()->Unit){
+fun Item(modifier: Modifier=Modifier ,viewModel: MyViewModel, dbObject: DbObject,  goToWord:()->Unit){
 
     ElevatedCard(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(128.dp),
         onClick = {
@@ -47,8 +47,7 @@ fun Item(viewModel: MyViewModel, dbObject: DbObject,  goToWord:()->Unit){
         }
     ) {
         Box(modifier = Modifier
-            .fillMaxWidth()
-            .height(128.dp)
+            .fillMaxSize()
         ){
             if (dbObject.imagePath.isNotEmpty()){
                 Image(
