@@ -1,7 +1,5 @@
 package com.tutorial.learnenglishnewera.test_component
 
-import kotlin.random.Random
-
 // Her zaman bir öncekinden farklı bir değer üretecek
 
 class RandomValue<T>(private val list:List<T>){

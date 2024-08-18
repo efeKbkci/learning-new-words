@@ -3,18 +3,11 @@ package com.tutorial.learnenglishnewera.api
 import android.os.Environment
 import android.util.Log
 import com.tutorial.learnenglishnewera.MyViewModel
-import kotlinx.serialization.json.Json
-import okhttp3.Call
-import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
-import okhttp3.ResponseBody
-import okio.IOException
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.net.URL
 
 class GetPhonetic(private val viewModel: MyViewModel) {
 

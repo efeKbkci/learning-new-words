@@ -3,6 +3,8 @@ package com.tutorial.learnenglishnewera
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tutorial.learnenglishnewera.api.GetPhonetic
@@ -34,4 +36,19 @@ class MyViewModel:ViewModel() {
     fun showSnackBar(text:String){
         viewModelScope.launch { _snackbarState.value.showSnackbar(text) }
     }
+
+    var versionUrl:String = ""
+
+    private val _startActivityEvent = MutableLiveData<Unit>()
+    val startActivityEvent:LiveData<Unit> = _startActivityEvent
+    fun startProcess(){
+        _startActivityEvent.value = Unit
+    }
+
+    private val _updateMessengerState = MutableStateFlow( false )
+    val updateMessengerState:StateFlow<Boolean> = _updateMessengerState
+    fun showUpdateMessenger(value:Boolean){
+        _updateMessengerState.value = value
+    }
+
 }

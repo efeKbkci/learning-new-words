@@ -1,10 +1,7 @@
 package com.tutorial.learnenglishnewera.word_component
 
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.tutorial.learnenglishnewera.MyViewModel

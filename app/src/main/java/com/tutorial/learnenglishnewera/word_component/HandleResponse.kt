@@ -1,6 +1,5 @@
 package com.tutorial.learnenglishnewera.word_component
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import com.tutorial.learnenglishnewera.MyViewModel

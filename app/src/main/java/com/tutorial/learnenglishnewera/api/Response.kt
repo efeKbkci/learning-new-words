@@ -1,6 +1,5 @@
 package com.tutorial.learnenglishnewera.api
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /* api response bir json objesi döner. Bildiğimiz gibi json objesi en üstte bir liste yapısı ile gelir.

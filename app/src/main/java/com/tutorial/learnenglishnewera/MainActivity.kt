@@ -1,39 +1,51 @@
 package com.tutorial.learnenglishnewera
 
 import android.Manifest
+import android.app.AlertDialog
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
-import com.tutorial.learnenglishnewera.database.DbObject
 import com.tutorial.learnenglishnewera.navigation.BottomNavigation
 import com.tutorial.learnenglishnewera.ui.theme.LearnEnglishNewEraTheme
-import java.io.File
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import okio.IOException
 
 class MainActivity : ComponentActivity() {
 
+    private val viewModel by lazy{ MyViewModel() }
+    private val version = "v1.1" /*
+    TODO:Uygulamayı güncellediğinde versiyon bilgisini,
+     gradle dosyasındaki versiyonu ve github tagini güncelle, hepsi aynı olsun.
+     Özellikle buradaki version ve github tagi çok önemli
+    */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             LearnEnglishNewEraTheme {
-                BottomNavigation(viewModel = MyViewModel())
+                BottomNavigation(viewModel)
             }
         }
 
+        viewModel.startActivityEvent.observe(this){
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.data = Uri.parse(viewModel.versionUrl)
+            startActivity(intent)
+        }
+
         requestPermission()
+        versionControl()
     }
 
     private fun requestPermission(){
@@ -50,5 +62,50 @@ class MainActivity : ComponentActivity() {
 
     private fun versionControl(){
 
+        val client = OkHttpClient()
+
+        val request = Request.Builder()
+            .url("https://api.github.com/repos/efeKbkci/learning-new-words/releases/latest")
+            .build()
+
+        client.newCall(request).enqueue(object :Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                viewModel.showSnackBar("Version couldn't check")
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                if (response.isSuccessful){
+                    val jsonElement = Json.parseToJsonElement(response.body.string())
+                    val jsonObject = jsonElement.jsonObject
+                    val tag = jsonObject["tag_name"]?.jsonPrimitive?.content
+                    val latestUrl = jsonObject["html_url"]?.jsonPrimitive?.content
+
+                    if (tag != null){
+                        if (tag != version){
+                            latestUrl?.let {
+                                viewModel.versionUrl = it
+                                viewModel.showUpdateMessenger(true)
+                            }
+                        }
+                    }
+
+                } else viewModel.showSnackBar("Version couldn't check -> ${response.code}")
+            }
+        })
+    }
+
+
+    fun UpdateMessenger(url:String){
+
+        AlertDialog.Builder(this)
+            .setTitle("Yeni Version Mevcut")
+            .setMessage("Uygulamanın yeni bir versiyonu mevcut.Güncelle butonuna basarak github adresine gidebilirsiniz")
+            .setPositiveButton("Güncelle"){ _,_ ->
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.data = Uri.parse(url)
+                startActivity(intent)
+            }
+            .setNegativeButton("Sonra",null)
+            .show()
     }
 }

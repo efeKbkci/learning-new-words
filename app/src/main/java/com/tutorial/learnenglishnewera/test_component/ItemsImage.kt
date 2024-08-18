@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import com.tutorial.learnenglishnewera.database.DbObject
 
 @Composable
 fun ItemsImage(imagePath:String){
