@@ -24,7 +24,7 @@ import okio.IOException
 class MainActivity : ComponentActivity() {
 
     private val viewModel by lazy{ MyViewModel() }
-    private val version = "v1.1" /*
+    private val version = "v1.2" /*
     TODO:Uygulamayı güncellediğinde versiyon bilgisini,
      gradle dosyasındaki versiyonu ve github tagini güncelle, hepsi aynı olsun.
      Özellikle buradaki version ve github tagi çok önemli
