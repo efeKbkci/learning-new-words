@@ -96,8 +96,6 @@ fun TestScreen(viewModel: MyViewModel){
 
     /** Son **/
 
-    //TODO:TEST SCREEN'I HOME SCREEN'E BENZET
-
     if (!startTest){
         ModernBackground {
 
@@ -154,6 +152,7 @@ fun TestScreen(viewModel: MyViewModel){
 
             MultipleInsertion(
                 modifier = Modifier.fillMaxWidth(0.9f),
+                screenIsDisabled = false,
                 label = "New Sentence",
                 value = newSentence,
                 onValueChange = {newSentence =it},

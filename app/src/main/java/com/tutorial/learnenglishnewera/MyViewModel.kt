@@ -3,6 +3,7 @@ package com.tutorial.learnenglishnewera
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,6 +12,7 @@ import com.tutorial.learnenglishnewera.api.GetPhonetic
 import com.tutorial.learnenglishnewera.audio.AudioPlayer
 import com.tutorial.learnenglishnewera.database.DataBaseProcess
 import com.tutorial.learnenglishnewera.database.DbObject
+import com.tutorial.learnenglishnewera.navigation.AllDestinations
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -29,7 +31,7 @@ class MyViewModel:ViewModel() {
 
     var enableNavigation = mutableStateOf(true)
 
-    var previousRoute = "home" // home için ayrı, saved için ayrı bir lambda tanımlanacak
+    var previousRoute = AllDestinations.HOME // home için ayrı, saved için ayrı bir lambda tanımlanacak
 
     private val _snackbarState = MutableStateFlow( SnackbarHostState() )
     val snackbarState: StateFlow<SnackbarHostState> = _snackbarState

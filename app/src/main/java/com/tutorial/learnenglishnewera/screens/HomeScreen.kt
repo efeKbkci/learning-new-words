@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -17,17 +16,16 @@ import com.tutorial.learnenglishnewera.home_component.AddedWords
 import com.tutorial.learnenglishnewera.reuseables.CustomizedText
 import com.tutorial.learnenglishnewera.reuseables.ModernBackground
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(viewModel: MyViewModel, goToWord:()->Unit){
 
     ModernBackground {
-        AddedWords(viewModel = viewModel)
+        AddedWords(viewModel = viewModel){ goToWord() }
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Button(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(0.65f),
             onClick = {
                 viewModel.currentDbObject = null // yeni bir obje ekleneceği zaman null, obje düzenleneceği zaman o obje atanır
                 goToWord()

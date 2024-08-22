@@ -34,11 +34,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.tutorial.learnenglishnewera.MyViewModel
 import com.tutorial.learnenglishnewera.R
 import com.tutorial.learnenglishnewera.database.DbObject
+import com.tutorial.learnenglishnewera.navigation.AllDestinations
 import com.tutorial.learnenglishnewera.reuseables.CustomizedText
 import com.tutorial.learnenglishnewera.reuseables.CustomizedTextField
 import com.tutorial.learnenglishnewera.word_component.HandleResponse
@@ -48,6 +50,14 @@ import com.tutorial.learnenglishnewera.word_component.saveBitmap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
+
+/**
+ * WordScreen'e ulaşmanın 3 yolu vardır:
+ *  New Word Button -> currentDbObject = null, Append butonuna basıldığında eleman eklenir
+ *  SavedScreen'de Item'a basmak -> currenDbObject = item, Append butonua basıldığında eleman güncellenir
+ *  HomeScreen'de Item'a basmak -> currenDbObject = item, Append butonuna basılamayacak çünkü sayfa disable olacak
+ *  **/
 
 @Composable
 fun WordScreen(viewModel: MyViewModel, goToSaved:()->Unit){
@@ -73,6 +83,7 @@ fun WordScreen(viewModel: MyViewModel, goToSaved:()->Unit){
     var isItLearned by remember { mutableStateOf(false) }
 
     var bitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+    var screenIsDisabled by remember{ mutableStateOf(false) }
 
     /*
     * bitmap state = resim kaynaktan ilk alındığında herhangi bir yere kaydedilmeden doğrudan görüntülenen halidir
@@ -87,8 +98,13 @@ fun WordScreen(viewModel: MyViewModel, goToSaved:()->Unit){
             phonetic = it.phonetic
             it.context.forEach { contextItem -> context.add(contextItem) }
             it.exampleSentences.forEach { sentence -> exampleSentences.add(sentence) }
+            soundFilePath = it.pronunciationPath
             imagePath = it.imagePath
             isItLearned = it.isItLearned
+        }
+
+        if (currentItem != null && viewModel.previousRoute == AllDestinations.HOME){
+            screenIsDisabled = true
         }
     }
 
@@ -105,44 +121,70 @@ fun WordScreen(viewModel: MyViewModel, goToSaved:()->Unit){
             value = word,
             label = "Word",
             trailingIcon = Icons.AutoMirrored.Outlined.Send,
-            onTrailingIcon = { fetchData = fetchData.not() },
-            // icona her tıklandığında fetchdata farklı bir değer alarak launched effect'i tetikleyecek
+            onTrailingIcon = { if(!screenIsDisabled) fetchData = fetchData.not() },
+            trailingIconEnabled = !screenIsDisabled,
+            enabled = !screenIsDisabled
         ) { word = it }
 
-        MultipleInsertion(label = "Mean", value = addMean, onValueChange = {addMean = it }, list = meanList)
+        MultipleInsertion(
+            screenIsDisabled = screenIsDisabled,
+            label = "Mean",
+            value = addMean,
+            onValueChange = {addMean = it },
+            list = meanList
+        )
 
         CustomizedTextField(
             value = phonetic,
             label = "Phonetic",
             trailingIcon = Icons.Outlined.PlayCircleOutline,
-            onTrailingIcon = { viewModel.audioPlayer.start() },
-            trailingIconEnabled = playerIsActive
+            onTrailingIcon = {
+                if (soundFilePath.isNotEmpty()){
+                    viewModel.audioPlayer.apply {
+                        stop()
+                        createPlayer(File(soundFilePath))
+                        start()
+                    }
+                }
+            },
+            trailingIconEnabled = playerIsActive,
+            enabled = !screenIsDisabled
         ) { phonetic = it }
 
-        MultipleInsertion(label = "Add Context", value = addContext, onValueChange = {addContext = it}, list = context)
+        MultipleInsertion(
+            screenIsDisabled = screenIsDisabled,
+            label = "Add Context",
+            value = addContext,
+            onValueChange = {addContext = it},
+            list = context
+        )
 
-        MultipleInsertion(label = "Add Sentence", value = addSentence, onValueChange = {addSentence = it}, list = exampleSentences)
+        MultipleInsertion(
+            screenIsDisabled = screenIsDisabled,
+            label = "Add Sentence",
+            value = addSentence,
+            onValueChange = {addSentence = it},
+            list = exampleSentences
+        )
 
         CustomizedTextField(
             value = imageURL,
             label = "Image Path",
             trailingIcon = Icons.Outlined.Image,
-            onTrailingIcon = { loadImageFromURL(viewModel = viewModel, url = imageURL){ bitmap = it } }
+            onTrailingIcon = {
+                if (!screenIsDisabled) loadImageFromURL(viewModel = viewModel, url = imageURL){ bitmap = it }
+            },
+            enabled = !screenIsDisabled
             // fonksyion içerisinde çalışan coroutine scope sonlanınca state'i güncelleyecek ve otomatikmen resim sayfaya yüklenecek
         ) { imageURL = it }
 
         if (bitmap != null || imagePath.isNotEmpty()){
             // bitmap null değilse kaydedilmemiş resim görüntülenir, imagePath boş değilse kaydedilmiş resim görüntülenir
-            ElevatedCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f)
-            ) {
-                Box(modifier = Modifier.fillMaxSize()){
+            ElevatedCard{
+                Box{
                     Image(
                         bitmap = bitmap ?: BitmapFactory.decodeFile(imagePath).asImageBitmap(),
                         contentDescription = null,
-                        contentScale = ContentScale.FillWidth
                     )
                 }
             }
@@ -154,7 +196,7 @@ fun WordScreen(viewModel: MyViewModel, goToSaved:()->Unit){
             horizontalArrangement = Arrangement.Center
         ){
             CustomizedText(text = "Is it learned?", fontFamily = R.font.opensans_semicondensed_medium)
-            Checkbox(checked = isItLearned, onCheckedChange = { isItLearned = it })
+            Checkbox(checked = isItLearned, enabled = !screenIsDisabled,onCheckedChange = { isItLearned = it })
         }
 
         Row (
@@ -163,13 +205,13 @@ fun WordScreen(viewModel: MyViewModel, goToSaved:()->Unit){
             horizontalArrangement = Arrangement.Center
         ){
             CustomizedText(text = "Disable Bottom Navigation", fontFamily = R.font.opensans_semicondensed_medium)
-            Checkbox(checked = enableNavigation.not(), onCheckedChange = { enableNavigation = it.not() })
+            Checkbox(checked = enableNavigation.not(), onCheckedChange = { enableNavigation = it.not() }, enabled = !screenIsDisabled)
         }
 
         Button(
-            modifier = Modifier.fillMaxWidth(0.8f),
+            modifier = Modifier.fillMaxWidth(0.8f).graphicsLayer { alpha = if(screenIsDisabled) 0f else 1f },
+            enabled = !screenIsDisabled,
             onClick = {
-
                 if (bitmap != null){
                     val filePath = saveBitmap(bitmap!!.asAndroidBitmap(), word)
                     if (filePath != null) imagePath = filePath
@@ -188,10 +230,12 @@ fun WordScreen(viewModel: MyViewModel, goToSaved:()->Unit){
                     pronunciationPath = soundFilePath
                 )
 
-                // eğer word screen'e home penceresinden ulaşmışsak veri ekleyeceğiz
-                // Saved screen'den ulaşmışsak veri güncelleyeceğiz
-                if (viewModel.previousRoute == "home") CoroutineScope(Dispatchers.IO).launch { viewModel.dbProcess.addItem(dbObject) }
-                else if (viewModel.previousRoute == "saved") {
+                // eğer word screen'e home penceresindeki butondan ulaşmışsak veri ekleyeceğiz
+                // Saved screen'deki bir elemana tıkladıysak veri güncelleyeceğiz
+                if (viewModel.previousRoute == AllDestinations.HOME) {
+                    CoroutineScope(Dispatchers.IO).launch { viewModel.dbProcess.addItem(dbObject) }
+                }
+                else if (viewModel.previousRoute == AllDestinations.SAVED) {
                     CoroutineScope(Dispatchers.IO).launch { viewModel.dbProcess.updateItem(currentItem!!, dbObject) }
                 }
                 enableNavigation = true

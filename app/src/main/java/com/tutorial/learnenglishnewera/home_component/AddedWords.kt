@@ -2,94 +2,45 @@ package com.tutorial.learnenglishnewera.home_component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Circle
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.tutorial.learnenglishnewera.MyViewModel
 import com.tutorial.learnenglishnewera.database.DbObject
-import com.tutorial.learnenglishnewera.reuseables.shadow
-import com.tutorial.learnenglishnewera.saved_component.Item
 import kotlinx.coroutines.delay
 
 @Composable
-fun AddedWords(viewModel: MyViewModel){
+fun ColumnScope.AddedWords(viewModel: MyViewModel, goToWord:()->Unit){
 
-    val lazyListState = rememberLazyListState()
     val jsonDbList = remember { viewModel.jsonDbList }
-    var currentItemIndex by remember { mutableIntStateOf(0) }
-    var autoScroll by remember{ mutableStateOf(true) }
+    val visibleList = remember { mutableStateListOf<DbObject>() }
+    var infinitiLoop by remember{ mutableStateOf(true) }
+
+    LaunchedEffect(infinitiLoop) {
+        jsonDbList.chunked(3).forEach { chunk ->
+            chunk.forEach { visibleList.add(it) }
+            delay(3000)
+            visibleList.clear()
+            delay(500)
+        }
+        infinitiLoop = infinitiLoop.not()
+    }
 
     Column(
-        verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier.fillMaxSize().weight(1f),
+        verticalArrangement = Arrangement.spacedBy(16.dp), horizontalAlignment = Alignment.CenterHorizontally
     ){
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 25.dp),
-            state = lazyListState,
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            items(jsonDbList, { item:DbObject -> item.objectID }){
-
-                /**
-                 * eklenen elemanların lazyrow'un genişliğine sahip olmasını ve aynı zamanda kenarlarında boşluklar olmasını
-                 * istiyorsak bu durumda bir Row oluşturulur ve ana item Row'un içerisine yerleştirilir
-                 * Row'un genişliği parent'a eşitlenir ve böylece ana item lazyrow'a sığdırılmış olur.
-                 * Boşluklar içinse Row modifier'ına padding eklenir.
-                 * **/
-
-                Row(
-                    modifier = Modifier.fillParentMaxWidth().padding(horizontal = 4.dp),
-                    horizontalArrangement = Arrangement.Center
-                ){
-                    Item(
-                        modifier = Modifier
-                            .shadow(
-                                color = Color(0x991E1E1E),
-                                borderRadius = 12.dp,
-                                spread = 1.dp,
-                                blurRadius = 4.dp
-                            ),
-                        viewModel = viewModel,
-                        dbObject = it
-                    ) {/*Tıklanıldığı zaman bir şey olmayacak*/ }
-                }
-            }
-        }
-
-        IconButton(onClick = { autoScroll = autoScroll.not()  }) {
-            Icon(
-                imageVector = Icons.Filled.Circle,
-                contentDescription = null,
-                tint = if (autoScroll) Color(0xff2d637c) else Color(0xff9ca4b6)
-            )
-        }
-
-        LaunchedEffect(currentItemIndex, autoScroll) {
-            if (jsonDbList.isNotEmpty() && autoScroll) {
-                lazyListState.animateScrollToItem(currentItemIndex)
-                delay(2500)
-                currentItemIndex = (currentItemIndex + 1) % jsonDbList.size
-            }
+        visibleList.forEachIndexed{ index, dbObject ->
+            AnimatedCard(viewModel = viewModel, dbObject = dbObject, durationMs = ((index+1)*400).toLong()){ goToWord() }
         }
     }
 }

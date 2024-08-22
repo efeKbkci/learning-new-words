@@ -1,5 +1,6 @@
 package com.tutorial.learnenglishnewera.word_component
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import com.tutorial.learnenglishnewera.MyViewModel
@@ -40,6 +41,7 @@ fun HandleResponse(
                     // main dispatcher'a geçilir ve arayüz güncellenir
                     val soundFile = viewModel.getPhonetic.downloadSound()
                     // ses dosyası indirilir ve ses dosyasının konumu alınır.
+                    Log.d("myapp","ses -> $soundFile")
                     if (soundFile.isNotEmpty()){
                         viewModel.audioPlayer.createPlayer(File(soundFile)) // player oluşturulur
                         onPlayerIsActive(viewModel.audioPlayer.isActive())

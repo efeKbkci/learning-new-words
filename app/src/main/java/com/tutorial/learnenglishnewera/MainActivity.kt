@@ -1,10 +1,10 @@
 package com.tutorial.learnenglishnewera
 
 import android.Manifest
-import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -24,7 +24,7 @@ import okio.IOException
 class MainActivity : ComponentActivity() {
 
     private val viewModel by lazy{ MyViewModel() }
-    private val version = "v1.2" /*
+    private val version = "v1.3" /*
     TODO:Uygulamayı güncellediğinde versiyon bilgisini,
      gradle dosyasındaki versiyonu ve github tagini güncelle, hepsi aynı olsun.
      Özellikle buradaki version ve github tagi çok önemli
@@ -92,20 +92,5 @@ class MainActivity : ComponentActivity() {
                 } else viewModel.showSnackBar("Version couldn't check -> ${response.code}")
             }
         })
-    }
-
-
-    fun UpdateMessenger(url:String){
-
-        AlertDialog.Builder(this)
-            .setTitle("Yeni Version Mevcut")
-            .setMessage("Uygulamanın yeni bir versiyonu mevcut.Güncelle butonuna basarak github adresine gidebilirsiniz")
-            .setPositiveButton("Güncelle"){ _,_ ->
-                val intent = Intent(Intent.ACTION_VIEW)
-                intent.data = Uri.parse(url)
-                startActivity(intent)
-            }
-            .setNegativeButton("Sonra",null)
-            .show()
     }
 }

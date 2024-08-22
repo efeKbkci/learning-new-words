@@ -28,6 +28,7 @@ import com.tutorial.learnenglishnewera.reuseables.CustomizedTextField
 @Composable
 fun MultipleInsertion(
     modifier: Modifier=Modifier,
+    screenIsDisabled:Boolean,
     label:String,
     value:String,
     onValueChange:(String) -> Unit,
@@ -48,7 +49,8 @@ fun MultipleInsertion(
                     list.add(0,value)
                     onValueChange("")
                 }
-            }
+            },
+            enabled = !screenIsDisabled
         ) {
             onValueChange(it)
         }
@@ -75,8 +77,9 @@ fun MultipleInsertion(
                         textAlign = TextAlign.Center
                     )
                     Icon(imageVector = Icons.Filled.Delete, contentDescription = "delete sentence", modifier = Modifier.clickable {
-                        list.remove(it)
-                    })
+                            if (!screenIsDisabled) list.remove(it)
+                        }
+                    )
                 }
                 Divider()
             }

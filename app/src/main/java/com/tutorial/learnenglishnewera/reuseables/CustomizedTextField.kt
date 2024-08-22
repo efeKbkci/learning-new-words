@@ -7,7 +7,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,6 +39,7 @@ fun CustomizedTextField(
     isError:Boolean=false,
     enabled:Boolean=true,
     shape:Shape?=null,
+    colors:TextFieldColors?=null,
     onValueChange:(String)->Unit
 ) {
     OutlinedTextField(
@@ -76,6 +80,7 @@ fun CustomizedTextField(
         enabled = enabled,
         modifier = modifier.fillMaxWidth(),
         shape = shape ?: RoundedCornerShape(5),
-        keyboardOptions = KeyboardOptions(keyboardType = if (justNumbers) KeyboardType.Number else KeyboardType.Text)
+        keyboardOptions = KeyboardOptions(keyboardType = if (justNumbers) KeyboardType.Number else KeyboardType.Text),
+        colors = colors ?: OutlinedTextFieldDefaults.colors()
     )
 }
