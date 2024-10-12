@@ -50,6 +50,7 @@ import com.tutorial.learnenglishnewera.word_component.saveBitmap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
@@ -73,6 +74,8 @@ fun WordScreen(viewModel: MyViewModel, goToSaved:()->Unit){
     var fetchData by rememberSaveable { mutableStateOf(true) }
     var playerIsActive by rememberSaveable { mutableStateOf(false) }
     var imageURL by remember { mutableStateOf("") }
+    var soundUrl by remember { mutableStateOf("") } // User can customize his sound file
+    // if the api involves a sound url, by default, it will be assign to this value
 
     var word by remember { mutableStateOf("") }
     val meanList = remember { mutableStateListOf<String>() }
@@ -151,6 +154,27 @@ fun WordScreen(viewModel: MyViewModel, goToSaved:()->Unit){
             enabled = !screenIsDisabled
         ) { phonetic = it }
 
+        CustomizedTextField(
+            value = soundUrl,
+            label = "Pronunciation URL",
+            trailingIcon = Icons.AutoMirrored.Outlined.Send,
+            onTrailingIcon = {
+                if (soundUrl.isNotEmpty()){
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val filePath = viewModel.getPhonetic.downloadSound(soundUrl)
+                        if (filePath.isNotEmpty()){
+                            withContext(Dispatchers.Main){
+                                soundFilePath = filePath
+                                viewModel.audioPlayer.createPlayer(File(soundFilePath))
+                            }
+                        }
+                    }
+                }
+            },
+            trailingIconEnabled = playerIsActive,
+            enabled = !screenIsDisabled
+        ) { soundUrl = it }
+
         MultipleInsertion(
             screenIsDisabled = screenIsDisabled,
             label = "Add Context",
@@ -209,7 +233,9 @@ fun WordScreen(viewModel: MyViewModel, goToSaved:()->Unit){
         }
 
         Button(
-            modifier = Modifier.fillMaxWidth(0.8f).graphicsLayer { alpha = if(screenIsDisabled) 0f else 1f },
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .graphicsLayer { alpha = if (screenIsDisabled) 0f else 1f },
             enabled = !screenIsDisabled,
             onClick = {
                 if (bitmap != null){
@@ -254,8 +280,7 @@ fun WordScreen(viewModel: MyViewModel, goToSaved:()->Unit){
         fetchData = fetchData,
         word = word,
         onPhonetic = {phonetic = it},
-        onPlayerIsActive = {playerIsActive = it },
-        onSoundFilePath = {soundFilePath = it},
+        onSoundUrl = {soundUrl = it},
         viewModel = viewModel
     )
 }

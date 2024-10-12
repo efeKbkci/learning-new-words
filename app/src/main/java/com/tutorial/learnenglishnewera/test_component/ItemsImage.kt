@@ -14,17 +14,11 @@ import androidx.compose.ui.layout.ContentScale
 
 @Composable
 fun ItemsImage(imagePath:String){
-
-    ElevatedCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(1f)
-    ) {
-        Box(modifier = Modifier.fillMaxSize()){
+    ElevatedCard {
+        Box{
             Image(
                 bitmap = BitmapFactory.decodeFile(imagePath).asImageBitmap(),
-                contentDescription = null,
-                contentScale = ContentScale.FillWidth
+                contentDescription = null
             )
         }
     }

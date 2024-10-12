@@ -24,7 +24,7 @@ import okio.IOException
 class MainActivity : ComponentActivity() {
 
     private val viewModel by lazy{ MyViewModel() }
-    private val version = "v1.3" /*
+    private val version = "v1.4" /*
     TODO:Uygulamayı güncellediğinde versiyon bilgisini,
      gradle dosyasındaki versiyonu ve github tagini güncelle, hepsi aynı olsun.
      Özellikle buradaki version ve github tagi çok önemli
@@ -38,12 +38,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        viewModel.startActivityEvent.observe(this){
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = Uri.parse(viewModel.versionUrl)
-            startActivity(intent)
-        }
-
+        openBrowser()
         requestPermission()
         versionControl()
     }
@@ -92,5 +87,13 @@ class MainActivity : ComponentActivity() {
                 } else viewModel.showSnackBar("Version couldn't check -> ${response.code}")
             }
         })
+    }
+
+    private fun openBrowser(){
+        viewModel.startActivityEvent.observe(this){
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.data = Uri.parse(viewModel.versionUrl)
+            startActivity(intent)
+        }
     }
 }

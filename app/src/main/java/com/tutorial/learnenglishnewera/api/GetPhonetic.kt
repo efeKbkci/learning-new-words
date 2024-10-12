@@ -17,7 +17,8 @@ class GetPhonetic(private val viewModel: MyViewModel) {
 
     private val folderPath = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "pronunciations")
 
-    private lateinit var soundFileUrl:String
+    lateinit var soundFileUrl:String
+        private set
 
     init {
         pathControl()
@@ -49,48 +50,6 @@ class GetPhonetic(private val viewModel: MyViewModel) {
 
         return client.newCall(request).execute()
     }
-
-    fun downloadSound():String{
-        if (soundFileUrl.isEmpty()) {
-            viewModel.showSnackBar("Response is not contain any audio files")
-            return ""
-        }
-
-        val fileName = soundFileUrl.split("/").last()
-
-        val request = Request.Builder()
-            .url(soundFileUrl)
-            .build()
-
-        val response = client.newCall(request).execute()
-
-        return if (response.isSuccessful) {
-
-            val inputStream = response.body.byteStream()
-            val outputStream = FileOutputStream(File(folderPath, fileName))
-
-            try {
-                inputStream.use { input ->
-                    outputStream.use { output ->
-                        input.copyTo(output)
-                        Log.i("myapp", "dosya başarıyla indirildi")
-                    }
-                }
-            } catch (e: Exception) {
-                viewModel.showSnackBar("Audio file couldn't save")
-                e.printStackTrace()
-            }
-
-            val file = File(folderPath, fileName)
-            if (file.length() == 0L){
-                file.delete()
-                viewModel.showSnackBar("Audio file is corrupted, has been deleted")
-                ""
-            }
-            else file.absolutePath
-        } else ""
-    }
-
     fun extractPhonetic(list: List<Phonetic>):String{
 
         var phonetic = ""
@@ -104,5 +63,46 @@ class GetPhonetic(private val viewModel: MyViewModel) {
         soundFileUrl = audioURL
 
         return phonetic
+    }
+    fun downloadSound(soundUrl:String):String{
+
+        viewModel.showSnackBar("File is downloading -> $soundUrl")
+
+        val fileName = soundUrl.split("/").last()
+
+        val request = Request.Builder()
+            .url(soundUrl)
+            .build()
+
+        val response = client.newCall(request).execute()
+
+        return if (response.isSuccessful) {
+
+            val inputStream = response.body.byteStream()
+            val outputStream = FileOutputStream(File(folderPath, fileName))
+
+            try {
+                inputStream.use { input ->
+                    outputStream.use { output ->
+                        input.copyTo(output)
+                        viewModel.showSnackBar("File has been sucessfully downloaded")
+                    }
+                }
+            } catch (e: Exception) {
+                viewModel.showSnackBar("Audio file couldn't be saved")
+                e.printStackTrace()
+            }
+
+            val file = File(folderPath, fileName)
+            if (file.length() == 0L){
+                file.delete()
+                viewModel.showSnackBar("Audio file is corrupted, has been deleted")
+                ""
+            }
+            else file.absolutePath
+        } else {
+            viewModel.showSnackBar("File couldn't be downloaded")
+            ""
+        }
     }
 }

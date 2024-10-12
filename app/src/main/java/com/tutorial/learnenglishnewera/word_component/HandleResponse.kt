@@ -17,8 +17,7 @@ fun HandleResponse(
     fetchData:Boolean,
     word:String,
     onPhonetic:(String)->Unit,
-    onPlayerIsActive:(Boolean)->Unit,
-    onSoundFilePath:(String)->Unit,
+    onSoundUrl:(String)->Unit,
     viewModel: MyViewModel
 ){
     LaunchedEffect(key1 = fetchData) {
@@ -37,16 +36,11 @@ fun HandleResponse(
                 } else {
                     val extractedPhonetic = viewModel.getPhonetic.extractPhonetic(apiResponse.phonetics)
                     // Phonetic data class'ından uygun phonetic bilgisi alınır, ses dosyasının url'si çıkarılır
-                    withContext(Dispatchers.Main){ onPhonetic(extractedPhonetic) }
-                    // main dispatcher'a geçilir ve arayüz güncellenir
-                    val soundFile = viewModel.getPhonetic.downloadSound()
-                    // ses dosyası indirilir ve ses dosyasının konumu alınır.
-                    Log.d("myapp","ses -> $soundFile")
-                    if (soundFile.isNotEmpty()){
-                        viewModel.audioPlayer.createPlayer(File(soundFile)) // player oluşturulur
-                        onPlayerIsActive(viewModel.audioPlayer.isActive())
-                        onSoundFilePath(soundFile)
+                    withContext(Dispatchers.Main){
+                        onPhonetic(extractedPhonetic)
+                        onSoundUrl(viewModel.getPhonetic.soundFileUrl)
                     }
+                    // main dispatcher'a geçilir ve arayüz güncellenir
                 }
             }
             else viewModel.showSnackBar("Request has failed -> ${response.code}")
